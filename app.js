@@ -10,4 +10,4 @@ server.initDatabase(500)
     server.setRoutes();
     server.run(5000);
   })
-  .catch(err => console.log('error: ', err))
+  .catch((err) => console.log('error: ', err));
