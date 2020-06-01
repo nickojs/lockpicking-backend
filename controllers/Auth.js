@@ -3,16 +3,19 @@ const bcrypt = require('bcrypt');
 class Auth {
   async signup(req, res, next) {
     try {
-      const { email, name, password } = req.body;
+      const { email, username, password } = req.body;
       const hashedPw = await bcrypt.hash(password, 12);
-      // create user by model
+
+      const user = { email, username, password };
 
       res.status(201).json({
-        message: 'successfully created user'
-        // userId: user.id
+        message: 'successfully created user',
+        user
       });
     } catch (error) {
       next(error);
     }
   }
 }
+
+module.exports = new Auth();
