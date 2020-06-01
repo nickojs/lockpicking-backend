@@ -31,4 +31,10 @@ User.getUserById = async (id) => {
   return user;
 };
 
+User.getUserByUsername = async (username) => {
+  const user = await User.findOne({ where: { username } });
+  if (!user) throw new ErrorHandler('Couldn\'t find user', 404);
+  return user;
+};
+
 module.exports = User;
