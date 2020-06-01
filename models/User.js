@@ -23,7 +23,7 @@ const User = database.define('User', {
   },
   resetToken: Sequelize.STRING,
   resetTokenData: Sequelize.DATE
-});
+}, { tableName: 'users' });
 
 User.getUserById = async (id) => {
   const user = await User.findByPk(id);
