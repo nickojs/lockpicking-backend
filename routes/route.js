@@ -34,4 +34,6 @@ router.post('/new-user',
   validateResult.default,
   Auth.signup);
 
+router.post('/login', body('username').trim(), Auth.login);
+
 module.exports = router;
