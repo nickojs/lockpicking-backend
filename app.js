@@ -4,8 +4,9 @@ const Server = require('./server');
 
 const server = new Server(express);
 
-server.initDatabase(500)
+server.initDatabase()
   .then(() => {
+    console.log('connected to the database!');
     server.setMiddlewares();
     server.setRoutes();
     server.run(5000);

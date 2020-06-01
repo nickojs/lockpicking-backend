@@ -2,6 +2,7 @@ const bodyParser = require('body-parser');
 const CORS = require('./middlewares/CORS');
 const errorHandler = require('./middlewares/error-handler');
 
+const database = require('./config/database');
 const routes = require('./routes/route');
 
 class Server {
@@ -10,12 +11,9 @@ class Server {
     this.app = this.express();
   }
 
-  initDatabase(delay) {
+  initDatabase() {
     // db config
-    // dummy promise
-    return new Promise((resolve) => {
-      setTimeout(resolve, delay);
-    });
+    return database.sync({ /* force: true */ });
   }
 
   setMiddlewares() {
