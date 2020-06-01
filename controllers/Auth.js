@@ -1,5 +1,9 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 const User = require('../models/User');
+const ErrorHandler = require('../models/http-error');
+
 class Auth {
   async signup(req, res, next) {
     try {
@@ -20,7 +24,15 @@ class Auth {
     try {
       const { username, password } = req.body;
       const user = await User.getUserByUsername(username);
-      res.status(200).json({ user });
+      const comparePw = await bcrypt.compare(password, user.password);
+
+      if (!comparePw) throw new ErrorHandler('Wrong password', 401);
+
+      const token = jwt.sign({
+        userId: user.id
+      }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+      res.status(200).json({ token });
     } catch (error) {
       next(error);
     }
