@@ -90,6 +90,18 @@ class Auth {
       next(error);
     }
   }
+
+  async renameUser(req, res, next) {
+    const { newUsername } = req.body;
+    try {
+      const user = await User.getUserById(req.userId);
+      user.username = newUsername;
+      await user.save();
+      res.status(201).json({ message: 'Sucessfully updated username' });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new Auth();

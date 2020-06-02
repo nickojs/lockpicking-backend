@@ -4,6 +4,8 @@ const validateResult = require('../helpers/validate-routes');
 
 const User = require('../models/User');
 const Auth = require('../controllers/Auth');
+const isAuth = require('../middlewares/is-auth');
+
 const router = express.Router();
 
 router.post('/signup',
@@ -48,5 +50,7 @@ router.post('/reset-password/:token',
   ],
   validateResult.default,
   Auth.resetPassword);
+
+router.post('/rename-user', isAuth, Auth.renameUser);
 
 module.exports = router;
