@@ -49,14 +49,32 @@ class Auth {
 
     const tokenBuf = await randomBytes(32);
     const token = tokenBuf.toString('hex');
-    const timer = moment().add(1, 'hour').format();
+
+    const startTime = moment();
+    const expiresIn = moment().add(1, 'hour'); // 1 hour from now
+    const diff = moment.duration(expiresIn.diff(startTime));
+
+    const timeDiff = {
+      seconds: diff.get('seconds'),
+      hours: diff.get('hours')
+    };
+
+    const timeSulfix = {
+      hours: timeDiff.hours > 1 ? 'hours' : 'hour',
+      seconds: timeDiff.seconds > 1 ? 'seconds' : 'second'
+    };
 
     try {
       const user = await User.getUserByUsername(username);
       user.resetToken = token;
-      user.resetTokenData = timer;
+      user.resetTokenData = expiresIn;
       await user.save();
-      res.status(201).json({ message: 'success' });
+      // the token should be sent to the users email, but sendgrid hates me
+      // so i'll just return the reset token to the front-end
+      res.status(201).json({
+        message: `Your token expires in ${timeDiff.hours} ${timeSulfix.hours} and ${timeDiff.seconds} ${timeSulfix.seconds}.`,
+        resetToken: token
+      });
     } catch (error) {
       next(error);
     }
