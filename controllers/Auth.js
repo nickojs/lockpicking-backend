@@ -1,3 +1,9 @@
+const util = require('util');
+const crypto = require('crypto');
+const moment = require('moment');
+
+const randomBytes = util.promisify(crypto.randomBytes);
+
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -33,6 +39,24 @@ class Auth {
       }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
       res.status(200).json({ token });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async setResetPasswordToken(req, res, next) {
+    const { username } = req.body;
+
+    const tokenBuf = await randomBytes(32);
+    const token = tokenBuf.toString('hex');
+    const timer = moment().add(1, 'hour').format();
+
+    try {
+      const user = await User.getUserByUsername(username);
+      user.resetToken = token;
+      user.resetTokenData = timer;
+      await user.save();
+      res.status(201).json({ message: 'success' });
     } catch (error) {
       next(error);
     }

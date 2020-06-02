@@ -6,11 +6,6 @@ const User = require('../models/User');
 const Auth = require('../controllers/Auth');
 const router = express.Router();
 
-// write your routes here
-router.get('/', (req, res, next) => {
-  res.send({ message: 'root route' });
-});
-
 router.post('/new-user',
   [
     body('username').trim()
@@ -35,5 +30,7 @@ router.post('/new-user',
   Auth.signup);
 
 router.post('/login', body('username').trim(), Auth.login);
+
+router.post('/reset-password/', Auth.setResetPasswordToken);
 
 module.exports = router;
