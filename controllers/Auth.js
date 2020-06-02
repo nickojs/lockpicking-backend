@@ -1,8 +1,8 @@
-const moment = require('moment');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const generateToken = require('../helpers/generate-token');
+const expirationDates = require('../helpers/token-expiration');
 
 const User = require('../models/User');
 const ErrorHandler = require('../models/http-error');
@@ -44,33 +44,20 @@ class Auth {
   async setResetPasswordToken(req, res, next) {
     const { username } = req.body;
 
-    const token = await generateToken(32);
+    const resetToken = await generateToken(32);
+    const [dateLimits, diff, sulfix] = expirationDates();
 
-    const startTime = moment();
-    const expiresIn = moment().add(1, 'hour'); // 1 hour from now
-    const diff = moment.duration(expiresIn.diff(startTime));
-
-    const timeDiff = {
-      seconds: diff.get('seconds'),
-      hours: diff.get('hours')
-    };
-
-    const timeSulfix = {
-      hours: timeDiff.hours > 1 ? 'hours' : 'hour',
-      seconds: timeDiff.seconds > 1 ? 'seconds' : 'second'
-    };
+    const message = `Your token expires in ${diff.hours} ${sulfix.hours}`
+    + ` and ${diff.seconds} ${sulfix.seconds}.`;
 
     try {
       const user = await User.getUserByUsername(username);
-      user.resetToken = token;
-      user.resetTokenData = expiresIn;
+      user.resetToken = resetToken;
+      user.resetTokenData = dateLimits.expiration;
       await user.save();
       // the token should be sent to the users email, but sendgrid hates me
       // so i'll just return the reset token to the front-end
-      res.status(201).json({
-        message: `Your token expires in ${timeDiff.hours} ${timeSulfix.hours} and ${timeDiff.seconds} ${timeSulfix.seconds}.`,
-        resetToken: token
-      });
+      res.status(201).json({ message, resetToken });
     } catch (error) {
       next(error);
     }
