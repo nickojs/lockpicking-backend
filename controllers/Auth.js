@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const generateToken = require('../helpers/generate-token');
-const { expirationDates, expirationMessage } = require('../helpers/token-expiration');
+const { expirationDates, expirationMessage, isExpired } = require('../helpers/token-expiration');
 
 const User = require('../models/User');
 const ErrorHandler = require('../models/http-error');
@@ -47,6 +47,7 @@ class Auth {
     try {
       const user = await User.getUserByUsername(username);
       if (user.resetToken) {
+        // eslint-disable-next-line no-unused-vars
         const [_, diff, sulfix] = expirationDates(user.resetTokenData);
         const message = expirationMessage(diff, sulfix);
         return res.status(200).json({
@@ -63,6 +64,28 @@ class Auth {
       user.resetTokenData = dateLimits.expiration;
       await user.save();
       res.status(201).json({ message, resetToken });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async resetPassword(req, res, next) {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    try {
+      const user = await User.findOne({ where: { resetToken: token } });
+      if (!user) throw new ErrorHandler('Invalid token', 404);
+      const expired = isExpired(user.resetTokenData);
+      if (expired) throw new ErrorHandler('Expired token', 401);
+
+      const hashedPw = await bcrypt.hash(password, 12);
+      user.password = hashedPw;
+      user.resetToken = null;
+      user.resetTokenData = null;
+      await user.save();
+
+      res.status(201).json({ message: 'Sucessfully updated password' });
     } catch (error) {
       next(error);
     }
