@@ -16,8 +16,8 @@ const expirationDates = () => {
   };
 
   const dateLimits = {
-    init: startTime.format(),
-    expiration: expiresIn.format()
+    init: startTime.toDate(),
+    expiration: expiresIn.toDate()
   };
 
   return [dateLimits, timeDiff, timeSulfix];

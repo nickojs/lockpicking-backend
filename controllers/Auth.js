@@ -52,6 +52,12 @@ class Auth {
 
     try {
       const user = await User.getUserByUsername(username);
+      if (user.resetToken) {
+        return res.status(200).json({
+          message: `Token located. Expires: ${user.resetTokenData}`,
+          resetToken: user.resetToken
+        });
+      }
       user.resetToken = resetToken;
       user.resetTokenData = dateLimits.expiration;
       await user.save();
