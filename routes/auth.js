@@ -22,8 +22,8 @@ router.post('/new-user',
       .matches(/([0-9].*[a-zA-Z])|([a-zA-Z].*[0-9])/)
       .withMessage('Password should have at least one number and one char'),
     body('email').trim()
-      .normalizeEmail()
       .isEmail()
+      .normalizeEmail()
       .withMessage('Invalid email')
       .custom(async (value) => {
         const user = await User.findOne({ where: { email: value } });

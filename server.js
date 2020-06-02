@@ -3,7 +3,7 @@ const CORS = require('./middlewares/CORS');
 const errorHandler = require('./middlewares/error-handler');
 
 const database = require('./config/database');
-const routes = require('./routes/route');
+const authRoutes = require('./routes/auth');
 
 class Server {
   constructor(express) {
@@ -22,7 +22,7 @@ class Server {
   }
 
   setRoutes() {
-    this.app.use(routes);
+    this.app.use(authRoutes);
     this.app.use(errorHandler);
   }
 
