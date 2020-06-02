@@ -6,11 +6,16 @@ const User = require('../models/User');
 const Auth = require('../controllers/Auth');
 const router = express.Router();
 
-router.post('/new-user',
+router.post('/signup',
   [
     body('username').trim()
       .isLength({ min: 4, max: 18 })
-      .withMessage('Invalid user length'),
+      .withMessage('Invalid user length')
+      .custom(async (value) => {
+        const user = await User.findOne({ where: { username: value } });
+        if (user) return Promise.reject();
+      })
+      .withMessage('Username already exists'),
     body('password')
       .isLength({ min: 8, max: 20 })
       .withMessage('Invalid password length')
