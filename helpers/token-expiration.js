@@ -38,7 +38,10 @@ const expirationMessage = (diff, sulfix) => {
   } and ${diff.seconds} ${sulfix.seconds}.`;
 };
 
+const isExpired = (expiration) => moment() > moment(expiration);
+
 module.exports = {
   expirationDates,
-  expirationMessage
+  expirationMessage,
+  isExpired
 };
