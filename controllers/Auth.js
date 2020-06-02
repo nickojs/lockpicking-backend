@@ -1,11 +1,8 @@
-const util = require('util');
-const crypto = require('crypto');
 const moment = require('moment');
-
-const randomBytes = util.promisify(crypto.randomBytes);
-
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+
+const generateToken = require('../helpers/generate-token');
 
 const User = require('../models/User');
 const ErrorHandler = require('../models/http-error');
@@ -47,8 +44,7 @@ class Auth {
   async setResetPasswordToken(req, res, next) {
     const { username } = req.body;
 
-    const tokenBuf = await randomBytes(32);
-    const token = tokenBuf.toString('hex');
+    const token = await generateToken(32);
 
     const startTime = moment();
     const expiresIn = moment().add(1, 'hour'); // 1 hour from now
