@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const generateToken = require('../helpers/generate-token');
-const expirationDates = require('../helpers/token-expiration');
+const { expirationDates, expirationMessage } = require('../helpers/token-expiration');
 
 const User = require('../models/User');
 const ErrorHandler = require('../models/http-error');
@@ -44,25 +44,24 @@ class Auth {
   async setResetPasswordToken(req, res, next) {
     const { username } = req.body;
 
-    const resetToken = await generateToken(32);
-    const [dateLimits, diff, sulfix] = expirationDates();
-
-    const message = `Your token expires in ${diff.hours} ${sulfix.hours}`
-    + ` and ${diff.seconds} ${sulfix.seconds}.`;
-
     try {
       const user = await User.getUserByUsername(username);
       if (user.resetToken) {
+        const [_, diff, sulfix] = expirationDates(user.resetTokenData);
+        const message = expirationMessage(diff, sulfix);
         return res.status(200).json({
-          message: `Token located. Expires: ${user.resetTokenData}`,
+          message,
           resetToken: user.resetToken
         });
       }
+
+      const resetToken = await generateToken(32);
+      const [dateLimits, diff, sulfix] = expirationDates();
+      const message = expirationMessage(diff, sulfix);
+
       user.resetToken = resetToken;
       user.resetTokenData = dateLimits.expiration;
       await user.save();
-      // the token should be sent to the users email, but sendgrid hates me
-      // so i'll just return the reset token to the front-end
       res.status(201).json({ message, resetToken });
     } catch (error) {
       next(error);
@@ -71,3 +70,12 @@ class Auth {
 }
 
 module.exports = new Auth();
+
+/* READ ME!!!!!!!!!
+  I won't make the "setResetPasswordToken" available until I get
+  a mailing api to deliver the token to the user's email
+
+  It would be a gigantic security flaw to deliver the token
+  in the response, anyone could reset other users password
+
+*/
