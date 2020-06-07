@@ -1,8 +1,9 @@
+/* eslint-disable no-unused-vars */
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const generateToken = require('../helpers/generate-token');
-const sendgrid = require('../helpers/sendgrid-mailer');
+const { mailToken, mailNewUser } = require('../helpers/sendgrid-mailer');
 const { expirationDates, expirationMessage, isExpired } = require('../helpers/token-expiration');
 
 const User = require('../models/User');
@@ -49,7 +50,6 @@ class Auth {
       const user = await User.getUserById(userId);
       // checks for an existing, not expired token
       if (user.resetToken && !isExpired(user.resetTokenData)) {
-        // eslint-disable-next-line no-unused-vars
         const [_, diff, sulfix] = expirationDates(user.resetTokenData);
         const message = expirationMessage(diff, sulfix);
         return res.status(200).json({ message });
@@ -63,7 +63,7 @@ class Auth {
       user.resetTokenData = dateLimits.expiration;
       await user.save();
       // sends mail with token to user
-      sendgrid(user.email, {
+      mailToken(user.email, {
         username: user.username,
         expiration: message,
         token: user.resetToken
@@ -97,9 +97,23 @@ class Auth {
     const { username, password, email } = req.body;
     try {
       const user = await User.getUserByToken(token);
-      const oldName = user.username;
+      const currentUser = {
+        username: user.username,
+        email: user.email
+      };
+      const newUser = {
+        username,
+        email
+      };
+      const mailData = {
+        currentUser,
+        newUser
+      };
+
       await user.update({ username, password, email });
-      res.status(201).json({ message: `Updated ${oldName} to ${username}` });
+
+      mailNewUser(currentUser.email, mailData);
+      res.status(201).json({ message: 'Updated user information' });
     } catch (error) {
       next(error);
     }
