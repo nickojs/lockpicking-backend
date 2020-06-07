@@ -12,11 +12,7 @@ class Server {
   }
 
   initDatabase() {
-    // db config
-    // return database.sync({ /* force: true */ });
-    return new Promise((resolve) => {
-      setTimeout(resolve, 500);
-    });
+    return database.sync({ /* force: true  */});
   }
 
   setMiddlewares() {
