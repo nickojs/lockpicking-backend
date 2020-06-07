@@ -13,7 +13,10 @@ class Server {
 
   initDatabase() {
     // db config
-    return database.sync({ /* force: true */ });
+    // return database.sync({ /* force: true */ });
+    return new Promise((resolve) => {
+      setTimeout(resolve, 500);
+    });
   }
 
   setMiddlewares() {
@@ -22,12 +25,17 @@ class Server {
   }
 
   setRoutes() {
+    this.app.get('/', (req, res, next) => {
+      res.status(200).json({ message: 'we are up!' });
+    });
     this.app.use(authRoutes);
     this.app.use(errorHandler);
   }
 
   run(port) {
-    this.app.listen(port || 5000);
+    this.app.listen(port || 5000, () => {
+      console.log(`Connected on port: ${port}`);
+    });
   }
 }
 
