@@ -24,12 +24,12 @@ class Server {
     this.app.get('/', (req, res, next) => {
       res.status(200).json({ message: 'we are up!' });
     });
-    this.app.use(authRoutes);
+    this.app.use('/auth', authRoutes);
     this.app.use(errorHandler);
   }
 
   run(port) {
-    this.app.listen(port || 5000, () => {
+    this.app.listen(port, () => {
       console.log(`Connected on port: ${port}`);
     });
   }
