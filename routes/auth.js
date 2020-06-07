@@ -40,5 +40,8 @@ router.post('/login', body('username').trim(), Auth.login);
 
 router.post('/request-token/', Auth.setAccountToken);
 
+router.get('/update-user/:userId');
+
+router.post('/update-user/:userId', Auth.updateUser);
 
 module.exports = router;

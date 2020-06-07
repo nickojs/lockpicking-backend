@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const database = require('../config/database');
 const ErrorHandler = require('./http-error');
+const { isExpired } = require('../helpers/token-expiration');
 
 const User = database.define('User', {
   id: {
@@ -34,6 +35,14 @@ User.getUserById = async (id) => {
 User.getUserByUsername = async (username) => {
   const user = await User.findOne({ where: { username } });
   if (!user) throw new ErrorHandler('Couldn\'t find user', 404);
+  return user;
+};
+
+User.getUserByToken = async (resetToken) => {
+  const user = await User.findOne({ where: { resetToken } });
+  if (!user) throw new ErrorHandler('Couldn\'t find user', 404);
+  if (isExpired(user.resetTokenData)) throw new ErrorHandler('Invalid token', 401);
+
   return user;
 };
 

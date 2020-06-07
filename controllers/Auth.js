@@ -75,6 +75,35 @@ class Auth {
       next(error);
     }
   }
+
+  async getUserData(req, res, next) {
+    const { token } = req.params;
+    try {
+      const user = await User.getUserByToken(token);
+      res.status(200).json({
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email
+        }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async updateUser(req, res, next) {
+    const { token } = req.params;
+    const { username, password, email } = req.body;
+    try {
+      const user = await User.getUserByToken(token);
+      const oldName = user.username;
+      await user.update({ username, password, email });
+      res.status(201).json({ message: `Updated ${oldName} to ${username}` });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 module.exports = new Auth();
