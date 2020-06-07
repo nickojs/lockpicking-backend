@@ -41,11 +41,12 @@ class Auth {
     }
   }
 
-  async setResetPasswordToken(req, res, next) {
-    const { username } = req.body;
+  async setAccountToken(req, res, next) {
+    const { userId } = req.body;
 
     try {
-      const user = await User.getUserByUsername(username);
+      const user = await User.getUserById(userId);
+      // checks for an existing token
       if (user.resetToken) {
         // eslint-disable-next-line no-unused-vars
         const [_, diff, sulfix] = expirationDates(user.resetTokenData);
@@ -55,7 +56,7 @@ class Auth {
           resetToken: user.resetToken
         });
       }
-
+      // generates the token
       const resetToken = await generateToken(32);
       const [dateLimits, diff, sulfix] = expirationDates();
       const message = expirationMessage(diff, sulfix);
@@ -64,40 +65,6 @@ class Auth {
       user.resetTokenData = dateLimits.expiration;
       await user.save();
       res.status(201).json({ message, resetToken });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async resetPassword(req, res, next) {
-    const { token } = req.params;
-    const { password } = req.body;
-
-    try {
-      const user = await User.findOne({ where: { resetToken: token } });
-      if (!user) throw new ErrorHandler('Invalid token', 404);
-      const expired = isExpired(user.resetTokenData);
-      if (expired) throw new ErrorHandler('Expired token', 401);
-
-      const hashedPw = await bcrypt.hash(password, 12);
-      user.password = hashedPw;
-      user.resetToken = null;
-      user.resetTokenData = null;
-      await user.save();
-
-      res.status(201).json({ message: 'Sucessfully updated password' });
-    } catch (error) {
-      next(error);
-    }
-  }
-
-  async renameUser(req, res, next) {
-    const { newUsername } = req.body;
-    try {
-      const user = await User.getUserById(req.userId);
-      user.username = newUsername;
-      await user.save();
-      res.status(201).json({ message: 'Sucessfully updated username' });
     } catch (error) {
       next(error);
     }

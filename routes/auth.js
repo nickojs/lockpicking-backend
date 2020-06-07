@@ -38,19 +38,7 @@ router.post('/signup',
 
 router.post('/login', body('username').trim(), Auth.login);
 
-router.post('/reset-password/', Auth.setResetPasswordToken);
+router.post('/request-token/', Auth.setAccountToken);
 
-router.post('/reset-password/:token',
-  [
-    body('password')
-      .isLength({ min: 8, max: 20 })
-      .withMessage('Invalid password length')
-      .matches(/([0-9].*[a-zA-Z])|([a-zA-Z].*[0-9])/)
-      .withMessage('Password should have at least one number and one char')
-  ],
-  validateResult.default,
-  Auth.resetPassword);
-
-router.post('/rename-user', isAuth, Auth.renameUser);
 
 module.exports = router;
