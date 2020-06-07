@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const generateToken = require('../helpers/generate-token');
+const sendgrid = require('../helpers/sendgrid-mailer');
 const { expirationDates, expirationMessage, isExpired } = require('../helpers/token-expiration');
 
 const User = require('../models/User');
@@ -46,25 +47,30 @@ class Auth {
 
     try {
       const user = await User.getUserById(userId);
-      // checks for an existing token
-      if (user.resetToken) {
+      // checks for an existing, not expired token
+      if (user.resetToken && !isExpired(user.resetTokenData)) {
         // eslint-disable-next-line no-unused-vars
         const [_, diff, sulfix] = expirationDates(user.resetTokenData);
         const message = expirationMessage(diff, sulfix);
-        return res.status(200).json({
-          message,
-          resetToken: user.resetToken
-        });
+        return res.status(200).json({ message });
       }
       // generates the token
       const resetToken = await generateToken(32);
       const [dateLimits, diff, sulfix] = expirationDates();
       const message = expirationMessage(diff, sulfix);
-
+      // saves token and expiration date
       user.resetToken = resetToken;
       user.resetTokenData = dateLimits.expiration;
       await user.save();
-      res.status(201).json({ message, resetToken });
+      // sends mail with token to user
+      sendgrid(user.email, {
+        username: user.username,
+        expiration: message,
+        token: user.resetToken
+      });
+      res.status(201).json({
+        message: 'Generated token. Check your email.'
+      });
     } catch (error) {
       next(error);
     }
@@ -72,12 +78,3 @@ class Auth {
 }
 
 module.exports = new Auth();
-
-/* READ ME!!!!!!!!!
-  I won't make the "setResetPasswordToken" available until I get
-  a mailing api to deliver the token to the user's email
-
-  It would be a gigantic security flaw to deliver the token
-  in the response, anyone could reset other users password
-
-*/
