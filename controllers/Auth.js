@@ -112,10 +112,14 @@ class Auth {
   }
 
   async updateUser(req, res, next) {
-    const { token } = req.params;
-    const { username, password, email } = req.body;
+    const {
+      username, password, email, token
+    } = req.body;
+
     try {
       const user = await User.getUserByToken(token);
+      const hashedPw = password && await bcrypt.hash(password, 12);
+
       const currentUser = {
         username: user.username,
         email: user.email
@@ -124,17 +128,38 @@ class Auth {
         username,
         email
       };
-      const mailData = {
+
+      await user.update({
+        username,
+        email,
+        password: hashedPw,
+        resetToken: null,
+        resetTokenData: null
+      });
+
+      mailUpdatedUser(email, {
         currentUser,
         newUser
-      };
+      });
 
-      mailUpdatedUser(email, mailData);
-
-      await user.update({ username, password, email });
-
-      mailNewUser(currentUser.email, mailData);
       res.status(201).json({ message: 'Updated user information' });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async deleteUser(req, res, next) {
+    const { password, token } = req.body;
+    try {
+      const user = await User.getUserByToken(token);
+
+      const comparePw = await bcrypt.compare(password, user.password);
+      if (!comparePw) throw new ErrorHandler('Wrong password', 401);
+
+      const { username, email } = user;
+
+      mailDeletedUser(email, { username });
+      res.status(201).json({ message: `Deleted user ${username}` });
     } catch (error) {
       next(error);
     }
