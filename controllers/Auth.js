@@ -57,10 +57,10 @@ class Auth {
   }
 
   async setAccountToken(req, res, next) {
-    const { userId } = req.body;
+    const { email } = req.body;
 
     try {
-      const user = await User.getUserById(userId);
+      const user = await User.getUserByEmail(email);
 
       // checks for an existing, not expired token
       if (user.resetToken && !isExpired(user.resetTokenData)) {

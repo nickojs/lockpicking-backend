@@ -16,7 +16,11 @@ router.post('/login',
   body('username').trim(),
   Auth.login);
 
-router.post('/request-token/', Auth.setAccountToken);
+router.post('/request-token/',
+  body('email').trim().isEmail()
+    .withMessage('Provide a valid email'),
+  validateResult.default,
+  Auth.setAccountToken);
 
 router.get('/update-user/:token', Auth.getUserData);
 
