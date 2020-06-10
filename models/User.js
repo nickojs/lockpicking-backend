@@ -46,7 +46,7 @@ User.getUserByUsername = async (username) => {
 
 User.getUserByToken = async (resetToken) => {
   const user = await User.findOne({ where: { resetToken } });
-  if (!user) throw new ErrorHandler('Couldn\'t find user', 404);
+  if (!user) throw new ErrorHandler('Invalid token', 404);
   if (isExpired(user.resetTokenData)) throw new ErrorHandler('Invalid token', 401);
 
   return user;
