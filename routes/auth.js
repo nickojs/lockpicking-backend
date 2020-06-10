@@ -22,9 +22,9 @@ router.post('/request-token/',
   validateResult.default,
   Auth.setAccountToken);
 
-router.get('/update-user/:token', Auth.getUserData);
+router.get('/update-user/', Auth.getUserData);
 
-router.put('/update-user/:token',
+router.put('/update-user/',
   checkSchema(signupSchema),
   validateResult.default,
   Auth.updateUser);
