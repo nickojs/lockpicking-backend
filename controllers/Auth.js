@@ -13,7 +13,8 @@ const {
 
 const {
   expirationDates,
-  expirationMessage,
+  countdownMsg,
+  dateExpirationMsg,
   isExpired
 } = require('../helpers/token-expiration');
 
@@ -65,14 +66,14 @@ class Auth {
       // checks for an existing, not expired token
       if (user.resetToken && !isExpired(user.resetTokenData)) {
         const [_, diff, sulfix] = expirationDates(user.resetTokenData);
-        const message = expirationMessage(diff, sulfix);
+        const message = countdownMsg(diff, sulfix);
         return res.status(200).json({ message });
       }
 
       // generates the token
       const resetToken = await generateToken(32);
-      const [dateLimits, diff, sulfix] = expirationDates();
-      const message = expirationMessage(diff, sulfix);
+      const [dateLimits] = expirationDates();
+      const expiration = dateExpirationMsg(dateLimits.expiration);
 
       // saves token and expiration date
       user.resetToken = resetToken;
@@ -82,7 +83,7 @@ class Auth {
       // sends mail with token to user
       mailToken(user.email, {
         username: user.username,
-        expiration: message,
+        expiration,
         token: user.resetToken
       });
 

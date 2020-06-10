@@ -27,7 +27,7 @@ const expirationDates = (expiration) => {
   return [dateLimits, timeDiff, timeSulfix];
 };
 
-const expirationMessage = (diff, sulfix) => {
+const countdownMsg = (diff, sulfix) => {
   let hours = '';
   if (diff.hours > 0) {
     hours = `${diff.hours} ${sulfix.hours}, `;
@@ -38,10 +38,13 @@ const expirationMessage = (diff, sulfix) => {
   } and ${diff.seconds} ${sulfix.seconds}.`;
 };
 
+const dateExpirationMsg = (tokenExpiration) => moment(tokenExpiration).format('h:mm:ss A [of] MMMM Do, YYYY');
+
 const isExpired = (expiration) => moment() > moment(expiration);
 
 module.exports = {
   expirationDates,
-  expirationMessage,
+  countdownMsg,
+  dateExpirationMsg,
   isExpired
 };
