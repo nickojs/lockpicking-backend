@@ -8,7 +8,7 @@ const mailToken = (email, data) => {
     to: email,
     from: process.env.SENDGRID_EMAIL,
     template_id: process.env.SENDGRID_TOKEN,
-    dynamic_temp: data
+    dynamic_template_data: data
   };
   sgMail.send(msg);
 };
