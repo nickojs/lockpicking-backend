@@ -58,8 +58,7 @@ class Auth {
   }
 
   async setAccountToken(req, res, next) {
-    const { email } = req.body;
-
+    const { email, resend } = req.body;
     try {
       const user = await User.getUserByEmail(email);
 
@@ -67,6 +66,14 @@ class Auth {
       if (user.resetToken && !isExpired(user.resetTokenData)) {
         const [_, diff, sulfix] = expirationDates(user.resetTokenData);
         const message = countdownMsg(diff, sulfix);
+        if (resend) {
+          mailToken(user.email, {
+            username: user.username,
+            expiration: message,
+            token: user.resetToken
+          });
+          return res.status(200).json({ message: 'resend token to your email' });
+        }
         return res.status(200).json({ message });
       }
 
