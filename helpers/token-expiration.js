@@ -33,8 +33,7 @@ const countdownMsg = (diff, sulfix) => {
     hours = `${diff.hours} ${sulfix.hours}, `;
   }
 
-  return `Your token expires in ${hours
-  }${diff.minutes} ${sulfix.minutes
+  return `${hours}${diff.minutes} ${sulfix.minutes
   } and ${diff.seconds} ${sulfix.seconds}.`;
 };
 
