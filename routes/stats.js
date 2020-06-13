@@ -1,7 +1,4 @@
 const express = require('express');
-const { body, checkSchema } = require('express-validator');
-const validateResult = require('../helpers/validate-routes');
-
 const Stats = require('../controllers/Stats');
 
 const router = express.Router();
