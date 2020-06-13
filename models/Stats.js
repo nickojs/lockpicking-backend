@@ -9,6 +9,7 @@ const Stats = database.define('User', {
     primaryKey: true,
     allowNull: false
   },
+  username: Sequelize.STRING,
   time: Sequelize.STRING,
   picks: Sequelize.STRING
 
