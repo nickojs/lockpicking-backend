@@ -4,6 +4,7 @@ const errorHandler = require('./middlewares/error-handler');
 
 const database = require('./config/database');
 const authRoutes = require('./routes/auth');
+const statsRoutes = require('./routes/stats');
 
 class Server {
   constructor(express) {
@@ -24,6 +25,7 @@ class Server {
     this.app.get('/', (req, res, next) => {
       res.status(200).json({ message: 'we are up!' });
     });
+    this.app.use(statsRoutes);
     this.app.use('/auth', authRoutes);
     this.app.use(errorHandler);
   }
