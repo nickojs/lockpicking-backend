@@ -48,7 +48,9 @@ class Auth {
       if (!comparePw) throw new ErrorHandler('Wrong password', 401);
 
       const token = jwt.sign({
-        userId: user.id
+        userId: user.id,
+        username: user.username,
+        email: user.email
       }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
       res.status(200).json({ token });
