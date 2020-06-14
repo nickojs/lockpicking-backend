@@ -5,11 +5,10 @@ const sequelize = new Sequelize(
   process.env.DB_USER,
   process.env.DB_PASSWORD, {
     dialect: 'mysql',
-    host: process.env.LOCAL_DB
-    // host: '/cloudsql/lockpicking:southamerica-east1:lockpicking',
-    // dialectOptions: {
-    //   socketPath: '/cloudsql/lockpicking:southamerica-east1:lockpicking'
-    // }
+    host: `/cloudsql/${process.env.DB_HOST}`,
+    dialectOptions: {
+      socketPath: `/cloudsql/${process.env.DB_HOST}`
+    }
   }
 );
 

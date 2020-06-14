@@ -9,6 +9,6 @@ server.initDatabase()
     console.log('connected to the database!');
     server.setMiddlewares();
     server.setRoutes();
-    server.run(process.env.BACKEND_PORT || 5000);
+    server.run(process.env.PORT || 5000);
   })
   .catch((err) => console.log('error: ', err));
