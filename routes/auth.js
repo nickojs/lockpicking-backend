@@ -29,4 +29,10 @@ router.put('/update-user/',
   validateResult.default,
   Auth.updateUser);
 
+router.delete('/delete-user/',
+  body(['token', 'password']).not().isEmpty()
+    .withMessage('invalid credentials'),
+  validateResult.default,
+  Auth.deleteUser);
+
 module.exports = router;

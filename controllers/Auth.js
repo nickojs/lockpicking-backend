@@ -167,6 +167,8 @@ class Auth {
 
       const { username, email } = user;
 
+      await user.destroy();
+
       mailDeletedUser(email, { username });
       res.status(201).json({ message: `Deleted user ${username}` });
     } catch (error) {
